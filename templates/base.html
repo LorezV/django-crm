@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <title>CRM | {% block title %}Система управления бизнесом{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/grid.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tags/warning.css' %}">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'css/masters.css' %}">
+    <link rel="stylesheet" href="{% static 'css/paginator.css' %}">
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        
+    {% block html_header %}{% endblock %}
+</head>
+
+<body>
+    {% include 'components/sidebar.html' %}
+
+    <div class="wrapper">
+        <nav class="header p-3">
+            <button class="burger_toggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M2 6C2 5.44772 2.44772 5 3 5H21C21.5523 5 22 5.44772 22 6C22 6.55228 21.5523 7 21 7H3C2.44772 7 2 6.55228 2 6Z"
+                        fill="currentColor" />
+                    <path
+                        d="M2 12.0322C2 11.4799 2.44772 11.0322 3 11.0322H21C21.5523 11.0322 22 11.4799 22 12.0322C22 12.5845 21.5523 13.0322 21 13.0322H3C2.44772 13.0322 2 12.5845 2 12.0322Z"
+                        fill="currentColor" />
+                    <path
+                        d="M3 17.0645C2.44772 17.0645 2 17.5122 2 18.0645C2 18.6167 2.44772 19.0645 3 19.0645H21C21.5523 19.0645 22 18.6167 22 18.0645C22 17.5122 21.5523 17.0645 21 17.0645H3Z"
+                        fill="currentColor" />
+                </svg>
+            </button>
+            {% block header %}{% endblock %}
+            <a class="profile f-row" href="{% url 'profile' request.user.id %}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M16 9C16 11.2091 14.2091 13 12 13C9.79086 13 8 11.2091 8 9C8 6.79086 9.79086 5 12 5C14.2091 5 16 6.79086 16 9ZM14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9Z"
+                        fill="currentColor" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1ZM3 12C3 14.0902 3.71255 16.014 4.90798 17.5417C6.55245 15.3889 9.14627 14 12.0645 14C14.9448 14 17.5092 15.3531 19.1565 17.4583C20.313 15.9443 21 14.0524 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12ZM12 21C9.84977 21 7.87565 20.2459 6.32767 18.9878C7.59352 17.1812 9.69106 16 12.0645 16C14.4084 16 16.4833 17.1521 17.7538 18.9209C16.1939 20.2191 14.1881 21 12 21Z"
+                        fill="currentColor" />
+                </svg>
+                <span>{{ request.user.username }}</span>
+            </a>
+        </nav>
+        {% block content %}
+        {% endblock %}
+        {% load my_tags %}
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?{% param_replace page=1 %}" class="step-links">&laquo;</a>
+            <a href="?{% param_replace page=page_obj.previous_page_number %}" class="step-links"><</a>
+                    {% endif %}
+            {% for page_number in page_obj.paginator.num_pages|makelist %}
+            <a class='step-links {% if page_number == page_obj.number %}current{%endif%}' href="?{% param_replace page=page_number %}">{{ page_number }}</a>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <a href="?{% param_replace page=page_obj.next_page_number %}" class="step-links">></a>
+            <a href="?{% param_replace page=page_obj.paginator.num_pages %}" class="step-links">&raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{% static 'js/orders_edit.js' %}"></script>
+    <script src="{% static 'js/tags.js' %}"></script>
+</body>
+
+</html>

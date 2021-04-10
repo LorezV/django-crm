@@ -1,0 +1,33 @@
+.master_card {
+    background: white;
+    padding: 12px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px #3498db;
+    display: flex;
+    align-items: center;
+}
+
+.master_card {
+    margin-top: 24px;
+}
+
+.master_telegram {
+    margin-left: 12px;
+    background: #3498db;
+    color: white;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 5px;
+}
+
+.master_actions {
+    margin-left: auto;
+}
+
+.master_submit { 
+    background: #3498DB !important;
+}
+
+.master_submit:hover {
+    background: #2980b9 !important;
+}

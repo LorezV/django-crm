@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %} Редактирование заказа {% endblock %}
+
+{% block content %}
+
+<div class="container pb-5">
+    <div class="form_wrapper">
+        <h1>Редактирование заказа #{{ order.id }}</h1>
+        {% if order.master %}
+        <h2>Мастер на заказе: {{ order.master }}</h2>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            {{form}}
+            <input type="submit" value="Сохранить">
+        </form>
+    </div>
+</div>
+{% endblock %}
