@@ -76,8 +76,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-db_from_env = dj_database_url.config()
-DATABASES['default'].update(db_from_env)
 
 
 # Password validation
