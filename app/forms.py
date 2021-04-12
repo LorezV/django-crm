@@ -70,4 +70,4 @@ class TelegramProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = models.TelegramProfile
         fields = '__all__'
-        exclude = ['telegram_chat_id', ]
+        exclude = ['telegram_chat_id', 'telegram_username']
