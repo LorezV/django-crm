@@ -41,3 +41,7 @@ class OrderAdmin(ModelAdmin):
 @admin.register(models.TelegramProfile)
 class MasterAdmin(ModelAdmin):
     readonly_fields = ('telegram_chat_id', )
+
+@admin.register(models.City)
+class OrderAdmin(ModelAdmin):
+    list_display = ('title', )

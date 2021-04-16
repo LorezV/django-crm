@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'Asia/Yekaterinburg'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -118,9 +118,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = Path().cwd() / 'static'
 STATICFILES_DIRS = [
     Path().cwd() / 'app' / 'static',
-    Path().cwd() / 'app_auth' / 'static',
 ]
 
 LOGIN_REDIRECT_URL = reverse_lazy('index')
 
-TELEGRAM_BOT_TOKEN = '1766239536:AAH963fRlnBK3CnDuasYOgx_oeOs_8QCA4E'
+TELEGRAM_BOT_TOKEN = '1797163375:AAEw9EBLf1oZ1nhW0FAgL6fhLlc3CQpK48Q'

@@ -3,11 +3,18 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse_lazy
 from django.utils import timezone
+from app.bot import bot_utils
 
 # Create your models here.
 class User(AbstractUser):
     pass
 
+
+class City(models.Model):
+    title = models.CharField(max_length=128, verbose_name='Город', null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 class TelegramProfile(models.Model):
     class Meta:
@@ -15,12 +22,12 @@ class TelegramProfile(models.Model):
         verbose_name_plural = "Телеграм профиля"
 
     telegram_first_name = models.CharField(
-        max_length=128, verbose_name='Имя', blank=True)
+        max_length=128, verbose_name='Имя')
     telegram_last_name = models.CharField(
-        max_length=128, verbose_name='Фамилия', blank=True)
+        max_length=128, verbose_name='Фамилия', blank=True, null=True)
     telegram_username = models.CharField(
         max_length=128, verbose_name='Telegram имя пользователя', blank=True, null=True)
-    telegram_chat_id = models.CharField(max_length=128, verbose_name='Telegram id чата')
+    telegram_chat_id = models.CharField(max_length=128, verbose_name='Telegram id чата', unique=True)
     is_master = models.BooleanField(verbose_name='Является мастером?', blank=True, default=False)
     is_operator = models.BooleanField(verbose_name='Является оператором?', blank=True, default=False)
 
@@ -51,31 +58,33 @@ class Order(models.Model):
         ('M', 'Модернизация')
     )
 
-    create_date = models.DateTimeField(
-        verbose_name='Дата и время создания заказа.', auto_now_add=True)
-    working_date = models.DateTimeField(verbose_name='Когда начинать работу', default=timezone.now()+timezone.timedelta(hours=1))
-    closing_date = models.DateTimeField(
-        verbose_name='Дата и время закрытия заказа.', null=True, blank=True)
-    client_name = models.CharField(
-        max_length=256, verbose_name='Имя клиента', blank=True)
-    client_adress = models.CharField(
-        max_length=256, verbose_name='Адрес', blank=True)
-    client_phone = models.CharField(
-        max_length=128, verbose_name='Телефон клиента', blank=True)
-    client_city = models.CharField(
-        max_length=128, verbose_name='Город')
-    order_type = models.CharField(
-        max_length=1, verbose_name='Тип', choices=TypeChoice, default='N')
-    order_status = models.CharField(
-        max_length=1, verbose_name='Статус', choices=StatusChoice, default='W')
-    comment = models.TextField(
-        verbose_name='Коментарий', blank=True, default='')
+    create_date = models.DateTimeField(verbose_name='Дата и время создания заказа.', auto_now_add=True)
+    working_date = models.DateTimeField(verbose_name='Когда начинать работу', blank=True, default=timezone.now()+timezone.timedelta(hours=1))
+    closing_date = models.DateTimeField(verbose_name='Дата и время закрытия заказа.', null=True, blank=True)
+    client_name = models.CharField(max_length=256, verbose_name='Имя клиента', blank=True, default='')
+    master_advert_name = models.CharField(max_length=128,verbose_name='Рекламное имя ВМ', blank=True, null=True)
+    client_adress = models.CharField(max_length=256, verbose_name='Адрес', blank=True, default='')
+    client_phone = models.CharField(max_length=128, verbose_name='Телефон клиента', blank=True, default='')
+    client_city = models.ForeignKey(
+        to=City,
+        related_name='client_city',
+        related_query_name='client_cities',
+        verbose_name='Город',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    order_type = models.CharField(max_length=1, verbose_name='Тип', choices=TypeChoice, default='N')
+    order_status = models.CharField(max_length=1, verbose_name='Статус', choices=StatusChoice, default='W')
+    comment = models.TextField(verbose_name='Проблема', blank=True, default='')
+    announced_amounts = models.TextField(verbose_name='Цены озвучены', blank=True, default='')
     master = models.ForeignKey(
         TelegramProfile,
         on_delete=models.SET_NULL,
         related_name='orders',
         related_query_name='order',
         limit_choices_to={'is_master': True},
+        verbose_name='ВМ',
         blank=True,
         null=True
     )
@@ -85,15 +94,19 @@ class Order(models.Model):
         related_query_name='order_request',
         limit_choices_to={'is_master': True},
         blank=True,
-        verbose_name='Предложения мастерам'
+        verbose_name='Предложения ВМ',
     )
-    amount = models.PositiveIntegerField(
-        verbose_name='Цена услуг', default=0)
-    master_comment = models.TextField(
-        verbose_name='Комментарий мастера', blank=True, default='')
+    amount = models.PositiveIntegerField(verbose_name='Цена услуг', default=0)
+    master_comment = models.TextField(verbose_name='Комментарий мастера', blank=True, default='')
 
     def get_absolute_url(self):
         return reverse_lazy('orders/detail', kwargs={'pk': self.id})
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.master:
+            for master in self.master_requests.all():
+                bot_utils.offer_master_order(master.telegram_chat_id, self)
 
     @property
     def master_coef(self):

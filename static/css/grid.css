@@ -1,0 +1,16 @@
+._row {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+._col {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+@media (max-width: 768px) {
+    ._row {
+        flex-direction: column !important;
+    }
+}

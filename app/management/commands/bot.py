@@ -14,7 +14,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                             level=logging.INFO)
-        
         import app.bot.bot_handler
         
         updater.start_polling()

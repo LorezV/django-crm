@@ -1,0 +1,59 @@
+div.form_wrapper {
+    width: 50% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 24px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form input, form select, form textarea {
+    border: none !important;
+    outline: none !important;
+    padding: 12px;
+}
+
+form label {
+    margin-top: 12px;
+}
+
+form input[type='submit'] {
+    background: var(--main-pink-color);
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    width: fit-content;
+    margin: auto;
+    margin-top: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+form input[type='submit']:hover {
+    background: #9b59b6;
+}
+
+form.filters {
+    justify-content: center;
+    align-items: center;
+}
+
+form.filters label {
+    margin: 0px;
+    font-size: 12px;
+}
+
+form.filters input[type='submit'] {
+    margin: 0px;
+    padding: 3px;
+}
+
+form.filters input[type='submit']:hover {
+}
+
+form.filters input, form.filters select {
+    margin: 0 6px;
+    padding: 3px 6px;
+}
