@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse_lazy
 from django.utils import timezone
-from app.bot import bot_utils
+from app.bot.jobs_utils import offer_master_order
 
 # Create your models here.
 class User(AbstractUser):
@@ -11,6 +11,10 @@ class User(AbstractUser):
 
 
 class City(models.Model):
+    class Meta:
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
+        
     title = models.CharField(max_length=128, verbose_name='Город', null=True, blank=True)
 
     def __str__(self):
@@ -30,6 +34,7 @@ class TelegramProfile(models.Model):
     telegram_chat_id = models.CharField(max_length=128, verbose_name='Telegram id чата', unique=True)
     is_master = models.BooleanField(verbose_name='Является мастером?', blank=True, default=False)
     is_operator = models.BooleanField(verbose_name='Является оператором?', blank=True, default=False)
+    # percents = models.TextField(max_length=512) #amountFrom-amountTo%percent,amountFrom-amountTo%percent,amountFrom-amountTo%percent
 
     def __str__(self):
         string = self.telegram_first_name + ' ' + self.telegram_last_name
@@ -106,7 +111,8 @@ class Order(models.Model):
         super().save(*args, **kwargs)
         if not self.master:
             for master in self.master_requests.all():
-                bot_utils.offer_master_order(master.telegram_chat_id, self)
+                print('boty')
+                offer_master_order(master, self)
 
     @property
     def master_coef(self):

@@ -48,7 +48,7 @@ class OrdersFilterForm(forms.Form):
     type_choice = list(models.Order.TypeChoice)
     type_choice.append(('', 'Любой'))
 
-    city = forms.CharField(max_length=128, label='Город', required=False)
+    city = forms.ModelChoiceField(queryset=models.City.objects.all(), label='Город')
     order_type = forms.ChoiceField(
         required=False,
         choices=type_choice,

@@ -8,11 +8,31 @@ from django.core.paginator import Paginator
 from . import models, forms
 # Create your views here.
 
+def get_all_amount():
+    amount = 0
+    for order in models.Order.objects.all():
+        t = order.amount
+        if t:
+            amount += t
+    return amount
+
+def get_all_clear_amount():
+    amount = 0
+    for order in models.Order.objects.all():
+        t = order.clear_amount
+        if t:
+            amount += t
+    return amount
 
 def index(request):
     if not request.user.is_authenticated:
         return redirect(reverse_lazy('login'))
-    return render(request, 'base.html')
+    context = {
+        'orders': models.Order.objects.all(),
+        'clear_amount': get_all_clear_amount(),
+        'amount': get_all_amount(),
+    }
+    return render(request, 'index.html', context=context)
 
 
 class OrderDeleteView(LoginRequiredMixin, DeleteView):

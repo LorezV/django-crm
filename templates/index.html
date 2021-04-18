@@ -1,4 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container">
+    <a href="{% url 'orders' %}" class="button-primary">Список заказов</a>
+    <div class="metric">
+        <div class="metric_card">
+            <div class="metric_header">
+                Прибыль
+            </div>
+            <div class="metric_info">
+                <u>{{ clear_amount }}</u> ₽
+            </div>
+        </div>
+        <div class="metric_card">
+            <div class="metric_header">
+                Получено
+            </div>
+            <div class="metric_info">
+                <u>{{ amount }}</u> ₽
+            </div>
+        </div>
+        <div class="metric_card">
+            <div class="metric_header">
+                Всего заказов
+            </div>
+            <div class="metric_info">
+                {{ orders.count }}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
