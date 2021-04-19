@@ -1,31 +1,28 @@
 {% extends 'base.html' %}
+{% load my_tags %}
 
 {% block content %}
 <div class="container">
-    <a href="{% url 'orders' %}" class="button-primary">Список заказов</a>
+    <a href="{% url 'orders' %}" class="button-succes">Список заказов</a>
     <div class="metric">
-        <div class="metric_card">
-            <div class="metric_header">
-                Прибыль
+        <div class="_col">
+            <div class="metric_card">
+                <div class="metric_header">
+                    Прибыль
+                </div>
+                <div class="metric_info">{{ clear_amount|humanize_int }}</u> ₽</div>
             </div>
-            <div class="metric_info">
-                <u>{{ clear_amount }}</u> ₽
+            <div class="metric_card">
+                <div class="metric_header">
+                    Получено
+                </div>
+                <div class="metric_info">{{ amount|humanize_int }} ₽</div>
             </div>
-        </div>
-        <div class="metric_card">
-            <div class="metric_header">
-                Получено
-            </div>
-            <div class="metric_info">
-                <u>{{ amount }}</u> ₽
-            </div>
-        </div>
-        <div class="metric_card">
-            <div class="metric_header">
-                Всего заказов
-            </div>
-            <div class="metric_info">
-                {{ orders.count }}
+            <div class="metric_card">
+                <div class="metric_header">
+                    Всего заказов
+                </div>
+                <div class="metric_info">{{ orders.count }}</div>
             </div>
         </div>
     </div>

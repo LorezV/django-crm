@@ -1,4 +1,5 @@
 from django import template
+import humanize
 
 register = template.Library()
 
@@ -16,3 +17,7 @@ def param_replace(context, **kwargs):
 @register.filter(name='makelist')
 def makelist(number):
     return range(1, number+1)
+
+@register.filter(name='humanize_int')
+def humanize_int(number):
+    return humanize.intcomma(number)

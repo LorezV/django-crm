@@ -1,4 +1,5 @@
 {% load static %}
+{% load my_tags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -63,7 +64,6 @@
         </nav>
         {% block content %}
         {% endblock %}
-        {% load my_tags %}
         {% if is_paginated %}
         <div class="pagination">
             {% if page_obj.has_previous %}

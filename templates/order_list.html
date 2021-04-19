@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load my_tags %}
 
 {% block title %}Продажы{% endblock %}
 
@@ -25,7 +26,7 @@
                 Прибыль
             </div>
             <div class="metric_info">
-                <u>{{ clear_amount }}</u> ₽
+                {{ clear_amount|humanize_int }} ₽
             </div>
         </div>
         <div class="metric_card">
@@ -33,7 +34,7 @@
                 Получено
             </div>
             <div class="metric_info">
-                <u>{{ amount }}</u> ₽
+                {{ amount|humanize_int }} ₽
             </div>
         </div>
         <div class="metric_card">

@@ -53,6 +53,11 @@ button, a {
     color: white;
 }
 
+.helptext {
+    background: rgba(241, 196, 15, 0.6);
+    padding: 6px 3px;
+}
+
 button:hover, a:hover {
     background: rgba(236, 240, 241,0.3);
 }

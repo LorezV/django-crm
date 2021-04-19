@@ -34,13 +34,17 @@ class TelegramProfile(models.Model):
     telegram_chat_id = models.CharField(max_length=128, verbose_name='Telegram id чата', unique=True)
     is_master = models.BooleanField(verbose_name='Является мастером?', blank=True, default=False)
     is_operator = models.BooleanField(verbose_name='Является оператором?', blank=True, default=False)
-    # percents = models.TextField(max_length=512) #amountFrom-amountTo%percent,amountFrom-amountTo%percent,amountFrom-amountTo%percent
+    percents = models.CharField(max_length=512, verbose_name='Проценты', help_text='[от-до%процент, от-до%процент...]. Если интервалы пересекаются, будет выбран первый в списке.', blank=False, default='0-2999%35,3000-999999%50') #amountFrom-amountTo%percent,amountFrom-amountTo%percent,amountFrom-amountTo%percent
 
     def __str__(self):
         string = self.telegram_first_name + ' ' + self.telegram_last_name
         if self.telegram_username:
             string += ' (' + self.telegram_username + ')'
         return string
+    
+    def save(self, *args, **kwargs):
+        self.percents = self.percents.replace(' ', '')
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse_lazy('masters/detail', kwargs={'pk': self.id})
@@ -113,27 +117,27 @@ class Order(models.Model):
             for master in self.master_requests.all():
                 print('boty')
                 offer_master_order(master, self)
-
-    @property
-    def master_coef(self):
-        if self.amount <= 3000:
-            _coef = 0.35
-        elif self.amount > 3000:
-            _coef = 0.5
-        else:
-            return Null
-        return _coef
-
+        if self.master and self.amount and self.order_status != 'R':
+            self.master_amount = int(self.amount * self.master_coef)
+            self.clear_amount = int(self.amount - (self.amount * self.master_coef))
+            super().save(*args, **kwargs)
+    
     @property
     def master_amount(self):
-        if self.amount:
-            return int(self.amount * self.master_coef)
-        return 0
+        pass
 
     @property
     def clear_amount(self):
-        if self.amount:
-            return int(self.amount - (self.amount * self.master_coef))
+        return 12
+
+    @property
+    def master_coef(self):
+        if self.master:
+            for row in self.master.percents.split(','):
+                values, percent = row.split('%')
+                val1, val2 = values.split('-')
+                if self.amount > int(val1) and self.amount < int(val2):
+                    return int(percent) / 100
         return 0
 
     @property

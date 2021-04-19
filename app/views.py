@@ -6,11 +6,12 @@ from django.views.generic.edit import FormMixin
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from . import models, forms
+import humanize
 # Create your views here.
 
 def get_all_amount():
     amount = 0
-    for order in models.Order.objects.all():
+    for order in models.Order.objects.exclude(order_status='C'):
         t = order.amount
         if t:
             amount += t
@@ -18,7 +19,7 @@ def get_all_amount():
 
 def get_all_clear_amount():
     amount = 0
-    for order in models.Order.objects.all():
+    for order in models.Order.objects.exclude(order_status='C'):
         t = order.clear_amount
         if t:
             amount += t
@@ -106,7 +107,8 @@ class OrderListView(LoginRequiredMixin, ListView):
 
     def get_all_amount(self):
         amount = 0
-        for order in self.get_queryset():
+        queryset = self.get_queryset()
+        for order in queryset.exclude(order_status='C'):
             t = order.amount
             if t:
                 amount += t
@@ -114,7 +116,8 @@ class OrderListView(LoginRequiredMixin, ListView):
 
     def get_all_clear_amount(self):
         amount = 0
-        for order in self.get_queryset():
+        queryset = self.get_queryset()
+        for order in queryset.exclude(order_status='C'):
             t = order.clear_amount
             if t:
                 amount += t
