@@ -48,6 +48,29 @@
     height: 100%;
 }
 
+.metric {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    margin: 24px 0;
+}
+
+.metric_card {
+    background: white;
+    color: var(--main-pink-color);
+
+    padding: 24px;
+    font-size: 28px;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.metric_card:last-of-type {
+    background: var(--main-pink-color);
+    color: white;
+}
+
 .card_body .comment {
     color: #2c3e50;
     text-decoration: c;

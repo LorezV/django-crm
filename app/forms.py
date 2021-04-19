@@ -7,7 +7,7 @@ class OrderUpdateForm(forms.ModelForm):
     class Meta:
         model = models.Order
         fields = '__all__'
-        exclude = ['closing_date', 'master']
+        exclude = ['closing_date', 'master', 'cached_master_percent']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -19,7 +19,7 @@ class OrderCreateForm(forms.ModelForm):
         model = models.Order
         fields = '__all__'
         exclude = ['closing_date', 'amount',
-                   'master_comment', 'order_status', 'master', 'master_request']
+                   'master_comment', 'order_status', 'master', 'master_request', 'cached_master_percent', 'cashed']
 
 
 class UserProfileForm(forms.ModelForm):
@@ -48,7 +48,7 @@ class OrdersFilterForm(forms.Form):
     type_choice = list(models.Order.TypeChoice)
     type_choice.append(('', 'Любой'))
 
-    city = forms.ModelChoiceField(queryset=models.City.objects.all(), label='Город')
+    city = forms.ModelChoiceField(queryset=models.City.objects.all(), label='Город', required=False,)
     order_type = forms.ChoiceField(
         required=False,
         choices=type_choice,

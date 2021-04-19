@@ -39,7 +39,7 @@ class TelegramProfile(models.Model):
     def __str__(self):
         string = self.telegram_first_name + ' ' + self.telegram_last_name
         if self.telegram_username:
-            string += ' (' + self.telegram_username + ')'
+            string += ' (@' + self.telegram_username + ')'
         return string
     
     def save(self, *args, **kwargs):
@@ -79,7 +79,6 @@ class Order(models.Model):
         related_name='client_city',
         related_query_name='client_cities',
         verbose_name='Город',
-        blank=True,
         null=True,
         on_delete=models.SET_NULL
     )
@@ -107,6 +106,8 @@ class Order(models.Model):
     )
     amount = models.PositiveIntegerField(verbose_name='Цена услуг', default=0)
     master_comment = models.TextField(verbose_name='Комментарий мастера', blank=True, default='')
+    cashed = models.BooleanField(verbose_name='Деньги собраны?', default=False, blank=True)
+    cached_master_percent = models.PositiveIntegerField(verbose_name='Процент мастера.', default=0, blank=True)
 
     def get_absolute_url(self):
         return reverse_lazy('orders/detail', kwargs={'pk': self.id})
@@ -117,18 +118,26 @@ class Order(models.Model):
             for master in self.master_requests.all():
                 print('boty')
                 offer_master_order(master, self)
-        if self.master and self.amount and self.order_status != 'R':
-            self.master_amount = int(self.amount * self.master_coef)
-            self.clear_amount = int(self.amount - (self.amount * self.master_coef))
-            super().save(*args, **kwargs)
     
     @property
-    def master_amount(self):
-        pass
+    def get_amount(self):
+        if self.order_status == 'R':
+            return self.amount
+        return 0
 
     @property
-    def clear_amount(self):
-        return 12
+    def get_master_amount(self):
+        return int(self.get_amount * self.master_coef)
+
+    @property
+    def get_clear_amount(self):
+        return int(self.get_amount - self.get_master_amount)
+    
+    @property
+    def get_cashed_value(self):
+        if self.cashed:
+            return self.get_clear_amount
+        return 0
 
     @property
     def master_coef(self):
@@ -136,8 +145,10 @@ class Order(models.Model):
             for row in self.master.percents.split(','):
                 values, percent = row.split('%')
                 val1, val2 = values.split('-')
-                if self.amount > int(val1) and self.amount < int(val2):
-                    return int(percent) / 100
+                if self.get_amount > int(val1) and self.get_amount < int(val2):
+                    self.cached_master_percent = int(percent) / 100
+                    self.save()
+                    return self.cached_master_percent
         return 0
 
     @property

@@ -21,7 +21,6 @@
             </svg>
             <label>Админка</label>
         </a>
-        {% endif %}
         <a class="sidebar_button" href="{% url 'index' %}" title="Главная">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17 5H7V7H17V5Z" fill="currentColor" />
@@ -39,6 +38,7 @@
             </svg>
             <label>Касса</label>
         </a>
+        {% endif %}
         <a class="sidebar_button" href="{% url 'orders' %}" title="Заказы">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd"

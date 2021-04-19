@@ -41,6 +41,7 @@ button, a {
     transition: 0.2s;
     text-decoration: none;
     color: black;
+    padding: 3px;
 }
 
 .button-primary {
@@ -59,7 +60,8 @@ button, a {
 }
 
 button:hover, a:hover {
-    background: rgba(236, 240, 241,0.3);
+    background: #0984e3;
+    color: white;
 }
 
 .wrapper {

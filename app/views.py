@@ -9,31 +9,41 @@ from . import models, forms
 import humanize
 # Create your views here.
 
-def get_all_amount():
-    amount = 0
-    for order in models.Order.objects.exclude(order_status='C'):
-        t = order.amount
-        if t:
-            amount += t
-    return amount
+def get_sum_temp_cash():
+    queryset = models.Order.objects.filter(order_status='R').exclude(cashed=True).exclude(master=None)
+    t = 0
+    for order in queryset:
+        t += order.get_clear_amount
+    return t
 
-def get_all_clear_amount():
-    amount = 0
-    for order in models.Order.objects.exclude(order_status='C'):
-        t = order.clear_amount
-        if t:
-            amount += t
-    return amount
+def get_sum_cash():
+    queryset = models.Order.objects.filter(order_status='R').filter(cashed=True).exclude(master=None)
+    t = 0
+    for order in queryset:
+        t += order.get_cashed_value
+    return t
+
 
 def index(request):
     if not request.user.is_authenticated:
         return redirect(reverse_lazy('login'))
-    context = {
-        'orders': models.Order.objects.all(),
-        'clear_amount': get_all_clear_amount(),
-        'amount': get_all_amount(),
-    }
-    return render(request, 'index.html', context=context)
+    
+    if request.method == 'GET':
+        context = {
+            'uncashed_orders': models.Order.objects.filter(order_status='R').filter(cashed=False).exclude(master=None).order_by('-closing_date'),
+            'cashed_orders': models.Order.objects.filter(order_status='R').filter(cashed=True).exclude(master=None).order_by('-closing_date'),
+            'temp_cash': get_sum_temp_cash(),
+            'cash': get_sum_cash(),
+        }
+        return render(request, 'index.html', context=context)
+    
+    if request.method == 'POST':
+        for id in request.POST.getlist('do_cash'):
+            order = models.Order.objects.filter(id=id).first()
+            if order:
+                order.cashed = True
+                order.save()
+        return redirect('/')
 
 
 class OrderDeleteView(LoginRequiredMixin, DeleteView):
@@ -78,6 +88,24 @@ class OrderListView(LoginRequiredMixin, ListView):
         context['amount'] = self.get_all_amount()
         context['clear_amount'] = self.get_all_clear_amount()
         return context
+    
+    def get_all_amount(self):
+        amount = 0
+        queryset = self.get_queryset()
+        for order in queryset.exclude(order_status='C'):
+            t = order.get_amount
+            if t:
+                amount += t
+        return amount
+
+    def get_all_clear_amount(self):
+        amount = 0
+        queryset = self.get_queryset()
+        for order in queryset.exclude(order_status='C'):
+            t = order.get_cashed_value
+            if t:
+                amount += t
+        return amount
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -104,24 +132,6 @@ class OrderListView(LoginRequiredMixin, ListView):
                 queryset = queryset.filter(
                     order_status=filter_form.cleaned_data['order_status'])
         return queryset, filter_form
-
-    def get_all_amount(self):
-        amount = 0
-        queryset = self.get_queryset()
-        for order in queryset.exclude(order_status='C'):
-            t = order.amount
-            if t:
-                amount += t
-        return amount
-
-    def get_all_clear_amount(self):
-        amount = 0
-        queryset = self.get_queryset()
-        for order in queryset.exclude(order_status='C'):
-            t = order.clear_amount
-            if t:
-                amount += t
-        return amount
 
 
 class UserProfileView(UpdateView, LoginRequiredMixin):

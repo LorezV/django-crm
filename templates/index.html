@@ -1,28 +1,75 @@
 {% extends 'base.html' %}
 {% load my_tags %}
+{% load static %}
+
+{% block html_header %}
+<link rel="stylesheet" href="{% static 'css/box-office.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container">
-    <a href="{% url 'orders' %}" class="button-succes">Список заказов</a>
-    <div class="metric">
-        <div class="_col">
-            <div class="metric_card">
-                <div class="metric_header">
-                    Прибыль
-                </div>
-                <div class="metric_info">{{ clear_amount|humanize_int }}</u> ₽</div>
+    <a href="{% url 'orders' %}" class="button-primary">Список заказов</a>
+    <div class="box-office">
+        <div class="temp">
+            <div class="box_header">
+                <div>Временные приходы</div>
+                <div>{{ temp_cash }} ₽</div>
             </div>
-            <div class="metric_card">
-                <div class="metric_header">
-                    Получено
-                </div>
-                <div class="metric_info">{{ amount|humanize_int }} ₽</div>
+            <div class="box_body">
+                <table style="width: 100%; text-align: left;">
+                    <tr>
+                        <th>#</th>
+                        <th>Дата заявки</th>
+                        <th>ВМ</th>
+                        <th>Общая</th>
+                        <th>Приход</th>
+                        <th>                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M11 19V22H13V19H14C16.2091 19 18 17.2091 18 15C18 12.7909 16.2091 11 14 11H13V7H15V9H17V5H13V2H11V5H10C7.79086 5 6 6.79086 6 9C6 11.2091 7.79086 13 10 13H11V17H9V15H7V19H11ZM13 17H14C15.1046 17 16 16.1046 16 15C16 13.8954 15.1046 13 14 13H13V17ZM11 11V7H10C8.89543 7 8 7.89543 8 9C8 10.1046 8.89543 11 10 11H11Z" fill="currentColor"/>
+                            </svg></th>
+                    </tr>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div style="display: flex; justify-content: flex-end;">
+                            <input type="submit" value="Подтвердить">
+                        </div>
+                        {% for order in uncashed_orders %}
+                        <tr>
+                            <td><a href="{% url 'orders/detail' order.id %}" class="button" style="color: #0984e3;">{{order.id}}</a></td>
+                            <td>{{order.closing_date}}</td>
+                            <td><a href="{% url 'masters/detail' order.master.id %}">{{order.master}}</a></td>
+                            <td>{{order.get_amount}}</td>
+                            <td>{{order.get_clear_amount}}</td>
+                            <td><input type="checkbox" name="do_cash" value="{{order.id}}"></td>
+                        </tr>
+                        {% endfor %}
+                    </form>
+                </table>
             </div>
-            <div class="metric_card">
-                <div class="metric_header">
-                    Всего заказов
-                </div>
-                <div class="metric_info">{{ orders.count }}</div>
+        </div>
+        <div class="profit">
+            <div class="box_header" style="background-color: #2ecc71;">
+                <div>Приходы</div>
+                <div>{{ cash }} ₽</div>
+            </div>
+            <div class="box_body">
+                <table style="width: 100%; text-align: left;">
+                    <tr>
+                        <th>#</th>
+                        <th>Дата заявки</th>
+                        <th>ВМ</th>
+                        <th>Общая</th>
+                        <th>Приход</th>
+                    </tr>   
+                    {% for order in cashed_orders %}
+                    <tr>
+                        <td><a href="{% url 'orders/detail' order.id %}" class="button" style="color: #0984e3;">{{order.id}}</a></td>
+                        <td>{{order.closing_date}}</td>
+                        <td><a href="{% url 'masters/detail' order.master.id %}">{{order.master}}</a></td>
+                        <td>{{order.get_amount}}</td>
+                        <td>{{order.get_cashed_value}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </div>

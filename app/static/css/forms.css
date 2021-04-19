@@ -35,14 +35,15 @@ form input[type='submit']:hover {
     background: #9b59b6;
 }
 
+
 form.filters {
     justify-content: center;
     align-items: center;
+    font-size: 12px;
 }
 
 form.filters label {
     margin: 0px;
-    font-size: 12px;
 }
 
 form.filters input[type='submit'] {
