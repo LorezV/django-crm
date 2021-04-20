@@ -17,11 +17,46 @@ Requirements:
 
 ```cd crm-django-and-bot```
 
-#### 3. Start containers
+#### 3. Create local environment files
+e.x:
+- .envs/.local/nginx.env
+```env
+SERVER_NAME=localhost
+SERVE_FILES=no
+DISABLE_DEFAULT_SERVER=yes
+USE_REVERSE_PROXY=yes
+REVERSE_PROXY_URL_1=/
+REVERSE_PROXY_HOST_1=http://django:8000/
+PROXY_REAL_IP=yes
+USE_GZIP=yes
+USE_BROTLI=yes
+```
+- .envs/.local/django.env
+```env
+DJANGO_DEBUG=True
+DJANGO_SETTINGS_MODULE=crm.settings.local
+DJANGO_SECRET_KEY="dev_secret"
+DJANGO_ADMINS=Full Name <email-with-name@example.com>,anotheremailwithoutname@example.com
+DJANGO_STAFF=Full Name <email-with-name@example.com>,anotheremailwithoutname@example.com
+DJANGO_ALLOWED_HOSTS=localhost
+DJANGO_DATABASE_MAIN_URL=postgres://dev_user:dev_password@postgres:5432/dev_database
+```
+- .envs/.local/telegram.env
+```env
+TELEGRAM_MAIN_BOT_TOKEN="!!!SET TELEGRAM_MAIN_BOT_TOKEN!!!"
+```
+- .envs/.local/postgres/main.env
+```env
+POSTGRES_USER=dev_user
+POSTGRES_PASSWORD="dev_password"
+POSTGRES_DB=dev_database
+```
+
+#### 4. Start containers
 
 ```docker-compose -f docker-compose-dev.yml up -d```
 
-#### 4. Start the dev server with interactive mode
+#### 5. Start the dev server with interactive mode
 
 ```sh
 docker-compose -f docker-compose-dev.yml exec django sh
@@ -29,7 +64,7 @@ poetry shell
 ./entrypoint.sh
 ```
 
-#### 5. Open http://localhost in your browser
+#### 6. Open http://localhost in your browser
 
 ### Configuration notes
 
