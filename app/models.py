@@ -58,8 +58,8 @@ class Spending(models.Model):
     TypeChoices = tuple(enumerate(['Реклама оплата труда', 'Реклама материал', 'Реклама интернет', 'Зарплата Руководителя', 'Зарплата Подчиненых', 'Командировка', 'Аренда', 'Инкасация', 'Перенос с прошлого мес.']))
     
     date = models.DateTimeField(verbose_name='Дата расхода', blank=True, null=True)
-    spending_type = models.SmallIntegerField(verbose_name='Тип', choices=TypeChoices, default=TypeChoices[0][0], max_length=1)
-    comment = models.TextField(verbose_name='Комментарий', blank=True, null=True)
+    spending_type = models.SmallIntegerField(verbose_name='Тип', choices=TypeChoices, default=TypeChoices[0][0])
+    comment = models.TextField(verbose_name='Комментарий', blank=True, null=True, max_length=512)
     amount = models.IntegerField(verbose_name='Сумма')
 
     @property
@@ -138,7 +138,10 @@ class Order(models.Model):
     
     @property
     def get_amount(self):
-            return self.amount
+            if self.amount:
+                return self.amount
+            else:
+                return 0
 
     @property
     def get_master_amount(self):
@@ -167,6 +170,7 @@ class Order(models.Model):
                         self.cached_master_percent = int(percent) / 100
                         self.save()
                         return self.cached_master_percent
+        return 0
 
     @property
     def type_verbose(self):

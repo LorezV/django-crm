@@ -3,8 +3,10 @@ import os
 from django.urls import reverse_lazy
 import dj_database_url
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -64,6 +66,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'crm.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -95,6 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -108,6 +112,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
@@ -119,4 +124,4 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = reverse_lazy('index')
 
-TELEGRAM_BOT_TOKEN = '1610187907:AAEpf2g_3-cEjib99QNIhrF5Q1g7ifiEpxY'
+TELEGRAM_BOT_TOKEN = '1797163375:AAEw9EBLf1oZ1nhW0FAgL6fhLlc3CQpK48Q'
