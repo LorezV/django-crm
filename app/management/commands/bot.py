@@ -5,7 +5,7 @@ from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram.ext import CallbackContext, CommandHandler, ConversationHandler, CallbackQueryHandler
 
-updater = Updater(token=settings.TELEGRAM_BOT_TOKEN)
+updater = Updater(token=settings.TELEGRAM_MAIN_BOT_TOKEN)
 dispatcher = updater.dispatcher
 
 class Command(BaseCommand):
@@ -15,6 +15,6 @@ class Command(BaseCommand):
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                             level=logging.INFO)
         import app.bot.bot_handler
-        
+
         updater.start_polling()
         updater.idle()

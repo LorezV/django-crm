@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse_lazy
-from django.utils import timezone
 from app.bot.jobs_utils import offer_master_order
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -14,11 +14,12 @@ class City(models.Model):
     class Meta:
         verbose_name = 'Город'
         verbose_name_plural = 'Города'
-        
+
     title = models.CharField(max_length=128, verbose_name='Город', null=True, blank=True)
 
     def __str__(self):
         return self.title
+
 
 class TelegramProfile(models.Model):
     class Meta:
@@ -34,20 +35,29 @@ class TelegramProfile(models.Model):
     telegram_chat_id = models.CharField(max_length=128, verbose_name='Telegram id чата', unique=True)
     is_master = models.BooleanField(verbose_name='Является мастером?', blank=True, default=False)
     is_operator = models.BooleanField(verbose_name='Является оператором?', blank=True, default=False)
-    percents = models.CharField(max_length=512, verbose_name='Проценты', help_text='[от-до%процент, от-до%процент...]. Если интервалы пересекаются, будет выбран первый в списке.', blank=False, default='0-2999%35,3000-999999%50') #amountFrom-amountTo%percent,amountFrom-amountTo%percent,amountFrom-amountTo%percent
+    # amountFrom-amountTo%percent,amountFrom-amountTo%percent,amountFrom-amountTo%percent
+    percents = models.CharField(max_length=512, verbose_name='Проценты',
+                                help_text='[от-до%процент, от-до%процент...]. Если интервалы пересекаются, '
+                                          'будет выбран первый в списке.',
+                                blank=False,
+                                default='0-2999%35,3000-999999%50')
 
     def __str__(self):
         string = self.telegram_first_name + ' ' + self.telegram_last_name
         if self.telegram_username:
             string += ' (' + self.telegram_username + ')'
         return string
-    
+
     def save(self, *args, **kwargs):
         self.percents = self.percents.replace(' ', '')
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse_lazy('masters/detail', kwargs={'pk': self.id})
+
+
+def get_initial_working_date():
+    return timezone.now() + timezone.timedelta(hours=1)
 
 
 class Order(models.Model):
@@ -68,10 +78,11 @@ class Order(models.Model):
     )
 
     create_date = models.DateTimeField(verbose_name='Дата и время создания заказа.', auto_now_add=True)
-    working_date = models.DateTimeField(verbose_name='Когда начинать работу', blank=True, default=timezone.now()+timezone.timedelta(hours=1))
+    working_date = models.DateTimeField(verbose_name='Когда начинать работу', blank=True,
+                                        default=get_initial_working_date)
     closing_date = models.DateTimeField(verbose_name='Дата и время закрытия заказа.', null=True, blank=True)
     client_name = models.CharField(max_length=256, verbose_name='Имя клиента', blank=True, default='')
-    master_advert_name = models.CharField(max_length=128,verbose_name='Рекламное имя ВМ', blank=True, null=True)
+    master_advert_name = models.CharField(max_length=128, verbose_name='Рекламное имя ВМ', blank=True, null=True)
     client_adress = models.CharField(max_length=256, verbose_name='Адрес', blank=True, default='')
     client_phone = models.CharField(max_length=128, verbose_name='Телефон клиента', blank=True, default='')
     client_city = models.ForeignKey(
@@ -110,7 +121,7 @@ class Order(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('orders/detail', kwargs={'pk': self.id})
-    
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.master:
@@ -121,7 +132,7 @@ class Order(models.Model):
             self.master_amount = int(self.amount * self.master_coef)
             self.clear_amount = int(self.amount - (self.amount * self.master_coef))
             super().save(*args, **kwargs)
-    
+
     @property
     def master_amount(self):
         pass
@@ -136,18 +147,18 @@ class Order(models.Model):
             for row in self.master.percents.split(','):
                 values, percent = row.split('%')
                 val1, val2 = values.split('-')
-                if self.amount > int(val1) and self.amount < int(val2):
+                if int(val1) < self.amount < int(val2):
                     return int(percent) / 100
         return 0
 
     @property
     def type_verbose(self):
-        if (self.order_type):
+        if self.order_type:
             return dict(Order.TypeChoice)[self.order_type]
         return ''
 
     @property
     def status_verbose(self):
-        if (self.order_status):
+        if self.order_status:
             return dict(Order.StatusChoice)[self.order_status]
         return ''

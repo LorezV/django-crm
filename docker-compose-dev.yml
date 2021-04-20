@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  django:
+    restart: always
+    stdin_open: true
+    tty: true
+    read_only: false
+    command: sh
+#    entrypoint: ./entrypoint.sh
+    build:
+      context: ./
+      dockerfile: ./dev.Dockerfile
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.envs/.local/django.env
+      - ./.envs/.local/telegram.env
+    volumes:
+      - ./:/opt/services/crm-django-and-bot/src:rw
+      - static_volume:/opt/services/crm-django-and-bot/static
+      - media_volume:/opt/services/crm-django-and-bot/media
+    depends_on:
+      - postgres
+
+  postgres:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    env_file:
+      - .envs/.local/postgres/main.env
+    ports:
+      - 5432:5432
+
+  nginx:
+    image: bunkerity/bunkerized-nginx
+    volumes:
+      #- ./letsencrypt:/etc/letsencrypt
+      - ./server-confs:/server-confs:ro
+      - static_volume:/opt/services/crm-django-and-bot/static
+      - media_volume:/opt/services/crm-django-and-bot/media
+    restart: always
+    ports:
+      - 80:8080
+      - 443:8443
+    env_file:
+      - ./.envs/.local/nginx.env
+    depends_on:
+      - django
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "crm-django-and-bot"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "Private"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+cryptography = "^3.4.7"
+django = "^3.2"
+djangorestframework = "^3.12.4"
+gunicorn = "^20.1.0"
+humanize = "^3.4.1"
+jwt = "^1.2.0"
+psycopg2-binary = "^2.8.6"
+python-telegram-bot = "^13.4.1"
+pytz = "^2021.1"
+django-environ = "^0.4.5"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.1"
+wemake-python-styleguide = "^0.15.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
