@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %} Создание заказа {% endblock %}
+
+{% block content %}
+
+<div class="container pb-5">
+    <div class="form_wrapper">
+        <h1>Создание заказа</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{form}}
+            <input type="submit" value="Отправить">
+        </form>
+    </div>
+</div>
+{% endblock %}

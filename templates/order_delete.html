@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form_wrapper">
+  <h1>Удалить заказ #{{order.id}}</h1>
+  <form method="post">{% csrf_token %}
+    <p>Вы уверены, что хотите навсегда удалить заказ #{{ order.id }} из базы данных?</p>
+    <input type="submit" value="Подтвердить" />
+  </form>
+</div>
+{% endblock content %}

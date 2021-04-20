@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load my_tags %}
+
+{% block title %}Продажы{% endblock %}
+
+{% block html_header %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="top-bar">
+        <a class="button-primary" href="{% url 'orders/create' %}">Создать заказ</a>
+        <form method="GET" class="filters _row">
+            {{ filter_form.as_p }}
+            <input type="submit" value="Фильровать">
+        </form>
+    </div>
+    <div class="metric">
+        <div class="metric_card">
+            <div class="metric_header">
+                Прибыль
+            </div>
+            <div class="metric_info">
+                {{ clear_amount|humanize_int }} ₽
+            </div>
+        </div>
+        <div class="metric_card">
+            <div class="metric_header">
+                Получено
+            </div>
+            <div class="metric_info">
+                {{ amount|humanize_int }} ₽
+            </div>
+        </div>
+        <div class="metric_card">
+            <div class="metric_header">
+                Всего заказов
+            </div>
+            <div class="metric_info">
+                {{ object_list.count }}
+            </div>
+        </div>
+    </div>
+    <table class="orders_list">
+        <tr>
+            <th>ID</th>
+            <th>Дата создниая</th>
+            <th>Дата работ</th>
+            <th>Дата закрытия</th>
+            <th>Имя клиента</th>
+            <th>Город</th>
+            <th>Адрес</th>
+            <th>Телефон</th>
+            <th>Тип</th>
+            <th>Статус</th>
+            <th>Сумма чистая</th>
+            <th>Коэф. ВМ</th>
+            <th>ЗП ВМ</th>
+            <th>Прибыль</th>
+        </tr>
+        {% for order in object_list %}
+        <tr class="{% if order.order_status == 'R' %}bg-success {% elif order.order_status == 'C' %} bg-danger {% elif order.order_status == 'W' %} bg-warning {% elif order.order_status == 'J' %} bg-primary {% elif order.order_status == 'M' %} bg-modern {%endif%}">
+            <td>{% if order.cashed %}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M11 19V22H13V19H14C16.2091 19 18 17.2091 18 15C18 12.7909 16.2091 11 14 11H13V7H15V9H17V5H13V2H11V5H10C7.79086 5 6 6.79086 6 9C6 11.2091 7.79086 13 10 13H11V17H9V15H7V19H11ZM13 17H14C15.1046 17 16 16.1046 16 15C16 13.8954 15.1046 13 14 13H13V17ZM11 11V7H10C8.89543 7 8 7.89543 8 9C8 10.1046 8.89543 11 10 11H11Z" fill="currentColor"/>
+            </svg>
+                {% endif %}
+                {{ order.id }}</td>
+            <td>{{ order.create_date }}</td>
+            <td>{{ order.working_date }}</td>
+            <td>{{ order.closing_date }}</td>
+            <td>{{ order.client_name }}</td>
+            <td>{{ order.client_city }}</td>
+            <td>{{ order.client_adress }}</td>
+            <td>{{ order.client_phone }}</td>
+            <td>{{ order.type_verbose }}</td>
+            <td>{{ order.status_verbose }}</td>
+            <td>{{ order.amount }}</td>
+            <td>{{ order.master_coef }}</td>
+            <td>{{ order.get_master_amount }}</td>
+            <td>{{ order.get_clear_amount }}</td>
+            <td>
+                <a href="{% url 'orders/detail' order.id %}">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14.8284 12L16.2426 13.4142L19.071 10.5858C20.6331 9.02365 20.6331 6.49099 19.071 4.9289C17.509 3.3668 14.9763 3.3668 13.4142 4.9289L10.5858 7.75732L12 9.17154L14.8284 6.34311C15.6095 5.56206 16.8758 5.56206 17.6568 6.34311C18.4379 7.12416 18.4379 8.39049 17.6568 9.17154L14.8284 12Z"
+                            fill="currentColor" />
+                        <path
+                            d="M12 14.8285L13.4142 16.2427L10.5858 19.0711C9.02372 20.6332 6.49106 20.6332 4.92896 19.0711C3.36686 17.509 3.36686 14.9764 4.92896 13.4143L7.75739 10.5858L9.1716 12L6.34317 14.8285C5.56212 15.6095 5.56212 16.8758 6.34317 17.6569C7.12422 18.4379 8.39055 18.4379 9.1716 17.6569L12 14.8285Z"
+                            fill="currentColor" />
+                        <path
+                            d="M14.8285 10.5857C15.219 10.1952 15.219 9.56199 14.8285 9.17147C14.4379 8.78094 13.8048 8.78094 13.4142 9.17147L9.1716 13.4141C8.78107 13.8046 8.78107 14.4378 9.1716 14.8283C9.56212 15.2188 10.1953 15.2188 10.5858 14.8283L14.8285 10.5857Z"
+                            fill="currentColor" />
+                    </svg>
+                </a>
+                <a href="{% url 'orders/delete' order.id %}">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M6.2253 4.81108C5.83477 4.42056 5.20161 4.42056 4.81108 4.81108C4.42056 5.20161 4.42056 5.83477 4.81108 6.2253L10.5858 12L4.81114 17.7747C4.42062 18.1652 4.42062 18.7984 4.81114 19.1889C5.20167 19.5794 5.83483 19.5794 6.22535 19.1889L12 13.4142L17.7747 19.1889C18.1652 19.5794 18.7984 19.5794 19.1889 19.1889C19.5794 18.7984 19.5794 18.1652 19.1889 17.7747L13.4142 12L19.189 6.2253C19.5795 5.83477 19.5795 5.20161 19.189 4.81108C18.7985 4.42056 18.1653 4.42056 17.7748 4.81108L12 10.5858L6.2253 4.81108Z"
+                            fill="currentColor" />
+                    </svg>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
+
+<div class="card">
+    <div class="card_header">
+        <div class="f-row">
+            <div
+                class="status {% if order.order_status == 'R' %}bg-success {% elif order.order_status == 'C' %} bg-danger {% elif order.order_status == 'W' %} bg-warning {% elif order.order_status == 'J' %} bg-primary {%endif%}">
+            </div>
+            <span>{{ order.status_verbose }}</span>
+        </div>
+        <span>Заказ #<a href="{% url 'orders/detail' order.id %}">{{order.id}}</a></span>
+        <div class="f-row">
+            <a href="{% url 'orders/detail' order.id %}" style="color: white;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M14.8284 12L16.2426 13.4142L19.071 10.5858C20.6331 9.02365 20.6331 6.49099 19.071 4.9289C17.509 3.3668 14.9763 3.3668 13.4142 4.9289L10.5858 7.75732L12 9.17154L14.8284 6.34311C15.6095 5.56206 16.8758 5.56206 17.6568 6.34311C18.4379 7.12416 18.4379 8.39049 17.6568 9.17154L14.8284 12Z"
+                        fill="currentColor" />
+                    <path
+                        d="M12 14.8285L13.4142 16.2427L10.5858 19.0711C9.02372 20.6332 6.49106 20.6332 4.92896 19.0711C3.36686 17.509 3.36686 14.9764 4.92896 13.4143L7.75739 10.5858L9.1716 12L6.34317 14.8285C5.56212 15.6095 5.56212 16.8758 6.34317 17.6569C7.12422 18.4379 8.39055 18.4379 9.1716 17.6569L12 14.8285Z"
+                        fill="currentColor" />
+                    <path
+                        d="M14.8285 10.5857C15.219 10.1952 15.219 9.56199 14.8285 9.17147C14.4379 8.78094 13.8048 8.78094 13.4142 9.17147L9.1716 13.4141C8.78107 13.8046 8.78107 14.4378 9.1716 14.8283C9.56212 15.2188 10.1953 15.2188 10.5858 14.8283L14.8285 10.5857Z"
+                        fill="currentColor" />
+                </svg>
+            </a>
+            <a href="{% url 'orders/delete' order.id %}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M6.2253 4.81108C5.83477 4.42056 5.20161 4.42056 4.81108 4.81108C4.42056 5.20161 4.42056 5.83477 4.81108 6.2253L10.5858 12L4.81114 17.7747C4.42062 18.1652 4.42062 18.7984 4.81114 19.1889C5.20167 19.5794 5.83483 19.5794 6.22535 19.1889L12 13.4142L17.7747 19.1889C18.1652 19.5794 18.7984 19.5794 19.1889 19.1889C19.5794 18.7984 19.5794 18.1652 19.1889 17.7747L13.4142 12L19.189 6.2253C19.5795 5.83477 19.5795 5.20161 19.189 4.81108C18.7985 4.42056 18.1653 4.42056 17.7748 4.81108L12 10.5858L6.2253 4.81108Z"
+                        fill="currentColor" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <div class="card_body">
+        <div class="_row" style="flex-wrap: wrap;">
+            <div class="card_info">{{ order.client_name }}</div>
+            <div class="card_info">{{ order.client_city }}</div>
+            <div class="card_info">{{ order.client_phone }}</div>
+            <div class="card_info">{{ order.type_verbose }}</div>
+            <div class="card_info">{{ order.client_adress }}</div>
+        </div>
+        <div class="_row comment card_info">
+            <i>
+                {{order.comment}}
+            </i>
+        </div>
+        {% if order.order_status == 'R' %}
+        <div class="_row" style="flex-wrap: wrap;">
+            <table style="width: 100%;margin-top: 6px; text-align: left;">
+                <tr>
+                    <th>Cумма чистая</th>
+                    <th>Коэф. ВМ</th>
+                    <th>ЗП ВМ</th>
+                    <th>Прибыль</th>
+                </tr>
+                <tr>
+                    <td>{{ order.amount }}</td>
+                    <td>{{ order.master_coef }}</td>
+                    <td>{{ order.master_amount }}</td>
+                    <td>{{ order.clear_amount }}</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    <div class="card_footer">
+        <div class="_row">
+            <div class="_col">{{ order.create_date }}</div>
+            {% if order.closing_date %}
+            <div class="_col">{{ order.closing_date }}</div>
+            {% endif %}
+            {% if order.master %}
+            <div class="_col">
+                <div class="_row">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM14 7C14 8.10457 13.1046 9 12 9C10.8954 9 10 8.10457 10 7C10 5.89543 10.8954 5 12 5C13.1046 5 14 5.89543 14 7Z"
+                            fill="currentColor" />
+                        <path
+                            d="M16 15C16 14.4477 15.5523 14 15 14H9C8.44772 14 8 14.4477 8 15V21H6V15C6 13.3431 7.34315 12 9 12H15C16.6569 12 18 13.3431 18 15V21H16V15Z"
+                            fill="currentColor" />
+                    </svg>
+                    {{ order.master }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
