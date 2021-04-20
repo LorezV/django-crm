@@ -4,16 +4,27 @@
 
 {% block html_header %}
 <link rel="stylesheet" href="{% static 'css/box-office.css' %}">
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <a href="{% url 'orders' %}" class="button-primary">Список заказов</a>
+    <div class="metric">
+        <div class="metric_card">
+            <div class="metric_header">
+                Прибыль
+            </div>
+            <div class="metric_info">
+                {{ profit|humanize_int }} ₽
+            </div>
+        </div>
+    </div>
     <div class="box-office">
         <div class="temp">
             <div class="box_header">
                 <div>Временные приходы</div>
-                <div>{{ temp_cash }} ₽</div>
+                <div>{{ temp_cash|humanize_int }} ₽</div>
             </div>
             <div class="box_body">
                 <table style="width: 100%; text-align: left;">
@@ -49,7 +60,7 @@
         <div class="profit">
             <div class="box_header" style="background-color: #2ecc71;">
                 <div>Приходы</div>
-                <div>{{ cash }} ₽</div>
+                <div>{{ cash|humanize_int }} ₽</div>
             </div>
             <div class="box_body">
                 <table style="width: 100%; text-align: left;">
@@ -67,6 +78,31 @@
                         <td><a href="{% url 'masters/detail' order.master.id %}">{{order.master}}</a></td>
                         <td>{{order.get_amount}}</td>
                         <td>{{order.get_cashed_value}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="spending">
+            <div class="box_header" style="background-color: #e74c3c;">
+                <div>Расходы</div>
+                <div><a href="{% url 'spending/create' %}" style="color: white; border: 1px solid white;">Новый расход</a></div>
+                <div>{{ spends_amount|humanize_int }} ₽</div>
+            </div>
+            <div class="box_body">
+                <table style="width: 100%; text-align: left;">
+                    <tr>
+                        <th>#</th>
+                        <th>Дата</th>
+                        <th>Тип</th>
+                        <th>Сумма</th>
+                    </tr>   
+                    {% for spend in spends %}
+                    <tr>
+                        <td>{{spend.id}}</td>
+                        <td>{{spend.date}}</td>
+                        <td>{{spend.verbose_type}}</td>
+                        <td>{{spend.amount}}</td>
                     </tr>
                     {% endfor %}
                 </table>

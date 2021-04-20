@@ -1,6 +1,7 @@
 from . import models
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.admin import widgets
 
 
 class OrderUpdateForm(forms.ModelForm):
@@ -65,6 +66,15 @@ class OrdersFilterForm(forms.Form):
     min_amount = forms.IntegerField(label='От', required=False)
     max_amount = forms.IntegerField(label='До', required=False)
 
+
+class SpendingForm(forms.ModelForm):
+    class Meta:
+        model = models.Spending
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget = forms.DateInput()
 
 class TelegramProfileUpdateForm(forms.ModelForm):
     class Meta:

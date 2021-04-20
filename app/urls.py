@@ -13,4 +13,5 @@ urlpatterns = [
     path('masters/', views.MasterListView.as_view(), name="masters"),
     path('masters/<int:pk>', views.MasterUpdateView.as_view(), name="masters/detail"),
     path('masters/delete/<int:pk>', views.MasterDeleteView.as_view(), name="masters/delete"),
+    path('spending/create', views.SpendingCreateView.as_view(), name='spending/create')
 ]

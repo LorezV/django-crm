@@ -50,6 +50,23 @@ class TelegramProfile(models.Model):
         return reverse_lazy('masters/detail', kwargs={'pk': self.id})
 
 
+class Spending(models.Model):
+    class Meta:
+        verbose_name = 'Расход'
+        verbose_name_plural = 'Расходы'
+
+    TypeChoices = tuple(enumerate(['Реклама оплата труда', 'Реклама материал', 'Реклама интернет', 'Зарплата Руководителя', 'Зарплата Подчиненых', 'Командировка', 'Аренда', 'Инкасация', 'Перенос с прошлого мес.']))
+    
+    date = models.DateTimeField(verbose_name='Дата расхода', blank=True, null=True)
+    spending_type = models.SmallIntegerField(verbose_name='Тип', choices=TypeChoices, default=TypeChoices[0][0], max_length=1)
+    comment = models.TextField(verbose_name='Комментарий', blank=True, null=True)
+    amount = models.IntegerField(verbose_name='Сумма')
+
+    @property
+    def verbose_type(self):
+        return dict(Spending.TypeChoices)[self.spending_type]
+
+
 class Order(models.Model):
     class Meta:
         verbose_name = "Заказ"
@@ -107,7 +124,7 @@ class Order(models.Model):
     amount = models.PositiveIntegerField(verbose_name='Цена услуг', default=0)
     master_comment = models.TextField(verbose_name='Комментарий мастера', blank=True, default='')
     cashed = models.BooleanField(verbose_name='Деньги собраны?', default=False, blank=True)
-    cached_master_percent = models.PositiveIntegerField(verbose_name='Процент мастера.', default=0, blank=True)
+    cached_master_percent = models.FloatField(verbose_name='Процент мастера.', default=0, blank=True)
 
     def get_absolute_url(self):
         return reverse_lazy('orders/detail', kwargs={'pk': self.id})
@@ -121,9 +138,7 @@ class Order(models.Model):
     
     @property
     def get_amount(self):
-        if self.order_status == 'R':
             return self.amount
-        return 0
 
     @property
     def get_master_amount(self):
@@ -142,14 +157,16 @@ class Order(models.Model):
     @property
     def master_coef(self):
         if self.master:
-            for row in self.master.percents.split(','):
-                values, percent = row.split('%')
-                val1, val2 = values.split('-')
-                if self.get_amount > int(val1) and self.get_amount < int(val2):
-                    self.cached_master_percent = int(percent) / 100
-                    self.save()
-                    return self.cached_master_percent
-        return 0
+            if self.order_status == 'R':
+                return self.cached_master_percent
+            else:
+                for row in self.master.percents.split(','):
+                    values, percent = row.split('%')
+                    val1, val2 = values.split('-')
+                    if self.get_amount > int(val1) and self.get_amount < int(val2):
+                        self.cached_master_percent = int(percent) / 100
+                        self.save()
+                        return self.cached_master_percent
 
     @property
     def type_verbose(self):

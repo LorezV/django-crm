@@ -23,17 +23,30 @@ def get_sum_cash():
         t += order.get_cashed_value
     return t
 
+def get_all_spends():
+    queryset = models.Spending.objects.all()
+    t = 0
+    for spend in queryset:
+        t += spend.amount
+    return t
+
 
 def index(request):
     if not request.user.is_authenticated:
         return redirect(reverse_lazy('login'))
     
     if request.method == 'GET':
+        sum_cash = get_sum_cash()
+        spends_amount = get_all_spends()
+        profit = sum_cash - spends_amount
         context = {
             'uncashed_orders': models.Order.objects.filter(order_status='R').filter(cashed=False).exclude(master=None).order_by('-closing_date'),
             'cashed_orders': models.Order.objects.filter(order_status='R').filter(cashed=True).exclude(master=None).order_by('-closing_date'),
             'temp_cash': get_sum_temp_cash(),
-            'cash': get_sum_cash(),
+            'cash': sum_cash,
+            'spends': models.Spending.objects.all(),
+            'spends_amount': spends_amount,
+            'profit': profit,
         }
         return render(request, 'index.html', context=context)
     
@@ -44,6 +57,15 @@ def index(request):
                 order.cashed = True
                 order.save()
         return redirect('/')
+
+
+class SpendingCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('login')
+    redirect_field_name = 'login'
+    template_name = 'spending_create.html'
+    model = models.Spending
+    form_class = forms.SpendingForm
+    success_url = reverse_lazy('index')
 
 
 class OrderDeleteView(LoginRequiredMixin, DeleteView):

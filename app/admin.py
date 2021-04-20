@@ -45,3 +45,7 @@ class MasterAdmin(ModelAdmin):
 @admin.register(models.City)
 class OrderAdmin(ModelAdmin):
     list_display = ('title', )
+
+@admin.register(models.Spending)
+class OrderAdmin(ModelAdmin):
+    list_display = ('date', 'amount')

@@ -21,3 +21,9 @@ def makelist(number):
 @register.filter(name='humanize_int')
 def humanize_int(number):
     return humanize.intcomma(number)
+
+
+@register.filter(name='humanize_datetime')
+def humanize_datetime(date):
+    humanize.i18n.activate("ru_RU")
+    return humanize.naturaldate(date)

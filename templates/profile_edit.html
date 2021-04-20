@@ -20,7 +20,10 @@
         <form method="POST">
             {% csrf_token %}
             {{form}}
-            <input type="submit" value="Сохранить">
+            <div>
+                <a href="{% url 'logout' %}">Выйти</a>
+                <input type="submit" value="Сохранить">
+            </div>
         </form>
     </div>
 </div>
