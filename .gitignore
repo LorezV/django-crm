@@ -216,5 +216,5 @@ crashlytics-build.properties
 fabric.properties
 
 # Secrets
-.envs
-!.envs/.example
+.envs/.production
+.envs/.local
