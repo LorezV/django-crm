@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="form_wrapper">
+        <table style="width: 100%; text-align: left;">
+            <tr>
+                <th>Аккаунт:</th>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <th>Дата регистрации в системе:</th>
+                <td>{{ user.date_joined }}</td>
+            </tr>
+            <tr>
+                <th>Последний вход в систему:</th>
+                <td>{{ user.last_login }}</td>
+            </tr>
+        </table>
+        <form method="POST">
+            {% csrf_token %}
+            {{form}}
+            <div>
+                <a href="{% url 'logout' %}">Выйти</a>
+                <input type="submit" value="Сохранить">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

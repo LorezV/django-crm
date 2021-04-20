@@ -1,0 +1,38 @@
+.box-office {
+    margin-top: 12px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 20px;
+}
+
+.box-office div {
+    box-sizing: border-box;
+}
+
+.box-office .box_header {
+    background-color: var(--main-pink-color);
+    color: white;
+    font-size: 14pt;
+    padding: 6px 12px;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.margin100 {
+    width: 100%;
+}
+
+.box-office .box_body {
+    padding: 6px 12px;
+    background-color: #ecf0f1;
+}
+
+form input[type='checkbox'] {
+    background-color: red;
+}
+
+@media (max-width: 867px) {
+    
+}
