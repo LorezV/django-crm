@@ -3,6 +3,7 @@ from app.management.commands.bot import updater
 from app.bot.bot_utils import insert_profile
 from app.bot import keyboards
 from app.bot.bot_utils import get_chat_data_or_none
+from telegram import InlineKeyboardMarkup
 
 def cmd_start(update, context):
     profile= models.TelegramProfile.objects.filter(
