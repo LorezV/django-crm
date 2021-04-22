@@ -1,7 +1,7 @@
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext, ConversationHandler, MessageHandler, Filters
 from telegram import InlineKeyboardMarkup
 from app.management.commands.bot import updater, dispatcher
-from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardButton, ReplyKeyboardRemove
 from app.bot import keyboards, bot_utils
 from app.bot.bot_utils import valid_order, valid_order_amount, valid_order_comment, get_chat_data_or_none, delete_message_to_delete, insert_order, insert_profile, insert_create_order_form, insert_order_manage
 from app.bot.command_utils import cmd_start
@@ -11,30 +11,45 @@ from app import forms
 from django.utils import timezone
 import re
 
+def go_create_order(update, context):
+    msg_id = get_chat_data_or_none(context, 'order_creation_message_id')
+    if msg_id:
+        try:
+            updater.bot.deleteMessage(update.effective_chat.id, int(msg_id))
+        except Exception as e:
+            print(e)
+    context.chat_data['order_creation_message_id'] = update.effective_message.reply_text(insert_create_order_form(updater, context), reply_markup=keyboards.get_create_order_keyboard(), parse_mode='html').message_id
+    msg = update.effective_message.reply_text('Укажите город', reply_markup=keyboards.get_order_city_keyboard())
+    context.chat_data['message_to_delete'] = msg.message_id
 
+def send_master_orders(update, context, profile):
+    for order in profile.orders.filter(order_status__regex=r'W|J|M'):
+                        update.effective_message.reply_text(insert_order_manage(update, context, order), reply_markup=InlineKeyboardMarkup(keyboards.keyboard_order_tabs), parse_mode='html')
+    
 def user_response_handler(update, context):
     try:
+        profile = models.TelegramProfile.objects.filter(telegram_chat_id=update.effective_chat.id).first()
         humanize.i18n.activate("ru_RU")
         if update.message:
-            pass
+            if update.message.text == 'Форма создания заказа ➕':
+                update.effective_message.reply_text('Создание заказа...', reply_markup=ReplyKeyboardRemove())
+                go_create_order(update, context)
+                return ConversationHandler.END
+            elif update.message.text == 'Мои заказы 🧐':
+                send_master_orders(update, context, profile)
+                return ConversationHandler.END
+            else:
+                update.effective_message.delete()
+                try:
+                    delete_message_to_delete(update, context)
+                except Exception as e:
+                    print(e)
         elif update.callback_query:
             query = update.callback_query
             data = query.data
-            profile = models.TelegramProfile.objects.filter(telegram_chat_id=update.effective_chat.id).first()
             query.answer()
-
             if profile and (profile.is_operator or profile.is_master):
-                if data == 'create_order':
-                    msg_id = get_chat_data_or_none(context, 'order_creation_message_id')
-                    if msg_id:
-                        try:
-                            updater.bot.deleteMessage(update.effective_chat.id, int(msg_id))
-                        except Exception as e:
-                            print(e)
-                    context.chat_data['order_creation_message_id'] = update.effective_message.reply_text(insert_create_order_form(updater, context), reply_markup=keyboards.get_create_order_keyboard(), parse_mode='html').message_id
-                    msg = update.effective_message.reply_text('Укажите город', reply_markup=keyboards.get_order_city_keyboard())
-                    context.chat_data['message_to_delete'] = msg.message_id
-                elif data == 'orderform_editform':
+                if data == 'orderform_editform':
                     context.chat_data['order_creation_message_id'] = update.effective_message.message_id
                     try:
                         update.effective_message.edit_text(insert_create_order_form(updater, context), reply_markup=keyboards.get_create_order_keyboard(), parse_mode='html')
@@ -67,7 +82,7 @@ def user_response_handler(update, context):
                     if new_order.is_valid():
                         new_order = new_order.save()
                         new_order.save()
-                        update.effective_message.reply_text(f'Вы создали заказ #{new_order.id}')
+                        update.effective_message.reply_text(f'Вы создали заказ #{new_order.id}', reply_markup=keyboards.get_profile_keyboard(profile))
                         update.effective_message.delete()
                         context.chat_data['order_creation_message_id'] = None
                     else:
@@ -83,20 +98,20 @@ def user_response_handler(update, context):
                     return ConversationHandler.END
                 elif data == 'button_update':
                     update.effective_message.edit_text(insert_profile(update, context, profile), reply_markup=keyboards.get_profile_keyboard(profile))
-                elif data == 'button_myorders':
-                    for order in profile.orders.filter(order_status__regex=r'W|J|M'):
-                        update.effective_message.reply_text(insert_order_manage(update, context, order), reply_markup=InlineKeyboardMarkup(keyboards.keyboard_order_tabs), parse_mode='html')
                 else:
                     order = models.Order.objects.filter(id=re.search(r'#([1-9]+)', update.effective_message.text).group(1)).first()
                     context.chat_data['order'] = order
                     if order:
                         context.chat_data['current_message_of_order'] = update.effective_message.message_id
                         if data == 'offer_accept':
-                            update.effective_message.reply_text(f'Вы приняли заказ #{order.id} 😀 Посмотреть ин-фу о закае можно в "Мои заказы"')
-                            updater.bot.deleteMessage(update.effective_chat.id, update.effective_message.message_id)
-                            order.master = profile
-                            order.order_status = 'J'
-                            order.save()
+                            if not order.master:
+                                update.effective_message.reply_text(f'Вы приняли заказ #{order.id} 😀 Посмотреть ин-фу о закае можно в "Мои заказы"', reply_markup=keyboards.get_profile_keyboard(profile))
+                                order.master = profile
+                                order.order_status = 'J'
+                                order.save()
+                            else:
+                                update.effective_message.reply_text(f'У заказа #{order.id} уже назначен мастер.😀', reply_markup=keyboards.get_profile_keyboard(profile))
+                                updater.bot.deleteMessage(update.effective_chat.id, update.effective_message.message_id)
                         elif data == 'order_button_amount':
                             msg = update.effective_message.reply_text(f'Укажите цену заказа #{order.id} 💰💰💰')
                             context.chat_data['message_to_delete'] = msg.message_id
@@ -260,6 +275,7 @@ def ask_orderform_comment(update, context):
     return 'state_askform_advertname'
 
 def ask_orderform_masters(update, context):
+    profile = models.TelegramProfile.objects.filter(telegram_chat_id=update.effective_chat.id).first()
     try:
         text = update.effective_message.text
         context.chat_data['form_order_masters'] = text
@@ -271,6 +287,7 @@ def ask_orderform_masters(update, context):
         delete_message_to_delete(update, context)
     except Exception as e:
         print(e)
+    update.effective_message.reply_text('Проверьте введённые данные еще раз!', reply_markup=keyboards.get_profile_keyboard(profile))
     return ConversationHandler.END
 
 def set_orderform_type(update, context, value):
@@ -339,13 +356,6 @@ conversation = ConversationHandler(
     fallbacks=[CallbackQueryHandler(user_response_handler)],
 )
 
-def delete_unknown_message(update, context):
-    update.effective_message.delete()
-    try:
-        delete_message_to_delete(update, context)
-    except Exception as e:
-        print(e)
-
 dispatcher.add_handler(CommandHandler('start', cmd_start))
 dispatcher.add_handler(conversation)
-dispatcher.add_handler(MessageHandler(Filters.text, delete_unknown_message))
+dispatcher.add_handler(MessageHandler(Filters.text, user_response_handler))

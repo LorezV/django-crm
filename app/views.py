@@ -113,8 +113,9 @@ class OrderListView(LoginRequiredMixin, ListView):
     
     def get_all_amount(self):
         amount = 0
-        queryset = self.get_queryset()
-        for order in queryset.exclude(order_status='C'):
+        queryset = self.get_queryset().filter(order_status='R')
+        print(queryset)
+        for order in queryset:
             t = order.get_amount
             if t:
                 amount += t
@@ -122,8 +123,8 @@ class OrderListView(LoginRequiredMixin, ListView):
 
     def get_all_clear_amount(self):
         amount = 0
-        queryset = self.get_queryset()
-        for order in queryset.exclude(order_status='C'):
+        queryset = self.get_queryset().filter(order_status='R')
+        for order in queryset:
             t = order.get_cashed_value
             if t:
                 amount += t

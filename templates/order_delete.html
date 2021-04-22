@@ -5,7 +5,10 @@
   <h1>Удалить заказ #{{order.id}}</h1>
   <form method="post">{% csrf_token %}
     <p>Вы уверены, что хотите навсегда удалить заказ #{{ order.id }} из базы данных?</p>
-    <input type="submit" value="Подтвердить" />
+    <div>
+      <input type="submit" value="Подтвердить" />
+      <a href="{% url 'orders' %}" class="button-primary">Отмена</a>
+    </div>
   </form>
 </div>
 {% endblock content %}

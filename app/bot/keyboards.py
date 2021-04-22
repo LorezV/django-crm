@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from app import models
 
 keyboard_profile_check = [
@@ -40,13 +40,10 @@ def get_create_order_keyboard():
 
 
 def get_profile_keyboard(profile):
-    keyboard = []
-    keyboard.append([InlineKeyboardButton('Мои заказы 🧐', callback_data='button_myorders'), InlineKeyboardButton(
-        'Обновить данные 🔄', callback_data='button_update')])
+    keyboard = [['Мои заказы 🧐']]
     if profile.is_operator:
-        keyboard.append([InlineKeyboardButton(
-            'Создать заказ ➕', callback_data='create_order')])
-    return InlineKeyboardMarkup(keyboard)
+        keyboard.append(['Форма создания заказа ➕'])
+    return ReplyKeyboardMarkup(keyboard)
 
 
 def get_order_type_keyboard(choices):

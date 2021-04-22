@@ -14,7 +14,7 @@
 {% block content %}
 <div class="container">
     <div class="top-bar">
-        <a class="button-primary" href="{% url 'orders/create' %}">Создать заказ</a>
+        <div><a class="button-primary" href="{% url 'orders/create' %}">Создать заказ</a></div>
         <form method="GET" class="filters _row">
             {{ filter_form.as_p }}
             <input type="submit" value="Фильровать">

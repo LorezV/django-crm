@@ -48,24 +48,6 @@
     height: 100%;
 }
 
-.card_body .comment {
-    color: #2c3e50;
-    text-decoration: c;
-}
-
-.card_info {
-    margin: 0px 6px;
-}
-
-.card_info:not(:last-child)::after {
-    content: ',';
-}
-
-.card_footer {
-    background: white;
-    padding: 6px;
-}
-
 .metric {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -87,6 +69,24 @@
 .metric_card:last-of-type {
     background: var(--main-pink-color);
     color: white;
+}
+
+.card_body .comment {
+    color: #2c3e50;
+    text-decoration: c;
+}
+
+.card_info {
+    margin: 0px 6px;
+}
+
+.card_info:not(:last-child)::after {
+    content: ',';
+}
+
+.card_footer {
+    background: white;
+    padding: 6px;
 }
 
 .top-bar {
